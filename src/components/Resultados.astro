@@ -1,0 +1,116 @@
+---
+import aval from "../data/avaliacao.json";
+import ReliabilityDiagram from "./ReliabilityDiagram.astro";
+
+const m = aval.metricas;
+const stats = [
+  { label: "Casos avaliados", valor: String(aval.casos), sub: `gabaritos revisados clinicamente: ${aval.gabaritos_revisados_clinicamente}/${aval.casos}` },
+  { label: "Acerto na hipótese principal", valor: `${m.acerto_hipotese_principal.acertos}/${m.acerto_hipotese_principal.total}`, sub: `${m.acerto_hipotese_principal.pct}%` },
+  { label: "Citou o documento correto", valor: `${m.citou_documento_correto.acertos}/${m.citou_documento_correto.total}`, sub: `${m.citou_documento_correto.pct}%` },
+  { label: "Respostas sem procedência", valor: String(m.respostas_sem_procedencia), sub: "precisa ser zero" },
+  { label: "Erros de execução", valor: String(m.erros_de_execucao), sub: "" },
+  { label: "ECE (erro de calibração)", valor: m.ece.toFixed(4), sub: "0 = calibração perfeita" },
+];
+---
+
+<section id="resultados" class="border-b border-neutral-900">
+  <div class="mx-auto max-w-4xl px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-emerald">Resultados da avaliação</p>
+    <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">
+      Rodada de {aval.data}, modelo <span class="font-mono text-neutral-300">{aval.modelo}</span>
+    </h2>
+
+    <!-- Aviso do proprio relatorio: gabaritos nao revisados -->
+    <div class="mt-6 flex gap-3 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
+      <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+      </svg>
+      <p class="text-sm leading-relaxed text-neutral-200">
+        {aval.aviso}
+      </p>
+    </div>
+
+    <!-- Numeros -->
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        stats.map((s) => (
+          <div class="rounded-xl border border-neutral-800 bg-ink-800 p-5">
+            <p class="text-xs text-neutral-500">{s.label}</p>
+            <p class="mt-2 font-mono text-3xl font-bold text-white">{s.valor}</p>
+            {s.sub && <p class="mt-1 text-xs text-neutral-500">{s.sub}</p>}
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Calibracao -->
+    <div class="mt-10 grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div>
+        <h3 class="text-base font-semibold text-white">Calibração</h3>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-400">
+          O ECE compara a confiança declarada com a taxa real de acerto. Nesta
+          rodada, só as respostas afirmativas (4 das 8) carregam confiança, e as
+          barras ficaram acima da diagonal: o sistema subestimou a própria
+          confiança. Com 4 respostas na amostra, isso é observação, não conclusão.
+        </p>
+      </div>
+      <ReliabilityDiagram />
+    </div>
+
+    <!-- Caso a caso -->
+    <div class="mt-10">
+      <h3 class="text-base font-semibold text-white">Caso a caso</h3>
+      <div class="mt-4 overflow-x-auto rounded-xl border border-neutral-800">
+        <table class="w-full min-w-[560px] text-left text-sm">
+          <thead class="border-b border-neutral-800 bg-ink-800 text-xs uppercase tracking-wide text-neutral-500">
+            <tr>
+              <th class="px-4 py-2.5 font-medium">Caso</th>
+              <th class="px-4 py-2.5 font-medium">Esperado</th>
+              <th class="px-4 py-2.5 font-medium">Conf.</th>
+              <th class="px-4 py-2.5 font-medium">Acertou</th>
+              <th class="px-4 py-2.5 font-medium">Fonte</th>
+              <th class="px-4 py-2.5 font-medium">Proced.</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-900">
+            {
+              aval.casos_detalhe.map((c) => (
+                <tr class="text-neutral-300">
+                  <td class="px-4 py-2.5 font-mono text-xs text-neutral-200">{c.id}</td>
+                  <td class="px-4 py-2.5 font-mono text-xs text-neutral-400">{c.esperado}</td>
+                  <td class="px-4 py-2.5 font-mono text-xs">{c.conf === null ? "-" : c.conf.toFixed(2)}</td>
+                  <td class="px-4 py-2.5">{c.acertou ? <span class="text-emerald">✓</span> : <span class="text-red-400">✗</span>}</td>
+                  <td class="px-4 py-2.5">{c.fonte === null ? "-" : c.fonte ? <span class="text-emerald">✓</span> : <span class="text-red-400">✗</span>}</td>
+                  <td class="px-4 py-2.5">{c.procedencia ? <span class="text-emerald">✓</span> : <span class="text-red-400">✗</span>}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Variancia entre rodadas -->
+    <div class="mt-8 rounded-xl border border-neutral-800 bg-ink-800 p-5">
+      <h3 class="text-base font-semibold text-white">Variância entre rodadas</h3>
+      <p class="mt-2 text-sm leading-relaxed text-neutral-400">{aval.variancia.nota} Com 8 casos, a diferença entre rodadas é ruído.</p>
+      <div class="mt-4 flex flex-wrap gap-3">
+        {
+          aval.variancia.rodadas.map((r) => (
+            <div class="rounded-lg border border-neutral-800 bg-ink-900 px-4 py-2">
+              <span class="text-xs text-neutral-500">Rodada {r.rodada}</span>
+              <span class="ml-2 font-mono text-sm text-neutral-200">{r.acerto}</span>
+              <span class="ml-2 font-mono text-xs text-neutral-500">ECE {r.ece.toFixed(4)}</span>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-4 text-sm leading-relaxed text-neutral-400">{aval.variancia.observacao}</p>
+    </div>
+
+    <p class="mt-6 text-xs text-neutral-600">
+      Dados extraídos de <span class="font-mono">resultados/avaliacao-{aval.data}.md</span>.
+      Reproduza com <span class="font-mono text-neutral-400">uv run raciocinio-cli avaliar</span>.
+    </p>
+  </div>
+</section>

@@ -1,0 +1,62 @@
+---
+const camadas = [
+  { n: "01", titulo: "Léxico", texto: "Normaliza o vocabulário brasileiro do caso. Termo ambíguo é devolvido com as leituras, sem escolher." },
+  { n: "02", titulo: "Recuperação", texto: "Busca full-text (DuckDB) na base de evidência dos PCDTs, com um piso de cobertura que decide se a pergunta está no escopo." },
+  { n: "03", titulo: "LLM local", texto: "O modelo raciocina sobre os trechos recuperados, na sua máquina." },
+  { n: "04", titulo: "Estruturação com procedência", texto: "Cada hipótese sai com citação literal, se a citação confere no documento, a confiança, e a lista do que ficou indeterminado." },
+];
+
+const tools = [
+  { nome: "raciocinar_caso", desc: "hipóteses com procedência, conduta, termos normalizados e indeterminados. Nenhum campo é opcional." },
+  { nome: "normalizar_termo", desc: "o que o léxico entende do termo; ambíguo volta com as leituras, sem escolha." },
+  { nome: "explicar_cobertura", desc: "o que a base cobre, para saber se a pergunta está no escopo antes de confiar na resposta." },
+];
+---
+
+<section id="como-funciona" class="border-b border-neutral-900">
+  <div class="mx-auto max-w-4xl px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-emerald">Como funciona</p>
+    <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">
+      Do texto livre à hipótese com procedência
+    </h2>
+
+    <ol class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        camadas.map((c, i) => (
+          <li class="relative rounded-xl border border-neutral-800 bg-ink-800 p-5">
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-sm font-bold text-emerald">{c.n}</span>
+              <span class="hidden text-neutral-700 lg:inline-block" aria-hidden="true">{i < 3 ? "→" : ""}</span>
+            </div>
+            <h3 class="mt-3 text-base font-semibold text-white">{c.titulo}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-neutral-400">{c.texto}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-8 flex gap-3 rounded-xl border border-emerald/25 bg-emerald/5 p-4">
+      <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z" />
+      </svg>
+      <p class="text-sm leading-relaxed text-neutral-300">
+        Uma resposta confiante sem procedência é tratada como <strong class="font-semibold text-white">bug</strong>,
+        não como estilo: o modelo de saída recusa hipótese com confiança acima de
+        0,5 sem trecho-fonte, e o pipeline rebaixa a confiança do que for afirmado
+        sem origem, registrando o rebaixamento em <span class="font-mono">indeterminados</span>.
+      </p>
+    </div>
+
+    <div class="mt-6 grid gap-3 sm:grid-cols-3">
+      {
+        tools.map((t) => (
+          <div class="rounded-xl border border-neutral-800 bg-ink-800 p-4">
+            <p class="font-mono text-sm font-semibold text-emerald">{t.nome}</p>
+            <p class="mt-1.5 text-xs leading-relaxed text-neutral-400">{t.desc}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

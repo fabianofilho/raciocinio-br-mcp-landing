@@ -1,0 +1,76 @@
+---
+import CodeBlock from "./CodeBlock.astro";
+
+const termos = [
+  { popular: "pressão alta", tecnico: "hipertensão arterial", tipo: "sintoma" },
+  { popular: "açúcar no sangue", tecnico: "glicemia", tipo: "exame" },
+  { popular: "falta de ar", tecnico: "dispneia", tipo: "sintoma" },
+  { popular: "chiado no peito", tecnico: "sibilância", tipo: "sintoma" },
+];
+
+const ambiguos = [
+  { popular: "pressão", leituras: ["pressão arterial", "sensação de aperto torácico", "cefaleia em peso"] },
+  { popular: "cansaço", leituras: ["dispneia aos esforços", "fadiga", "sonolência"] },
+];
+
+const yamlAmbiguo = `- termo_popular: pressão
+  termo_tecnico: AMBIGUO
+  tipo: sintoma
+  observacao: >-
+    Ambíguo de propósito: pode ser pressão arterial,
+    sensação de aperto no peito ou peso na cabeça.
+    O normalizador devolve as leituras, não escolhe.
+  leituras:
+    - pressão arterial
+    - sensação de aperto torácico
+    - cefaleia em peso
+  revisado: false`;
+---
+
+<section id="lexico" class="border-b border-neutral-900">
+  <div class="mx-auto max-w-4xl px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-emerald">O léxico brasileiro</p>
+    <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">
+      Um artefato de valor próprio, versionado
+    </h2>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      O mapeamento curado de termos (<span class="font-mono text-neutral-300">dados/lexico-br.yaml</span>,
+      versão 0.1.0, revisão clínica pendente) pode ser usado independentemente do
+      resto do projeto. Termo ambíguo nunca é normalizado em silêncio: o
+      normalizador devolve as leituras e deixa a escolha para quem usa.
+    </p>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">Direto</p>
+        {
+          termos.map((t) => (
+            <div class="flex items-center gap-3 rounded-lg border border-neutral-800 bg-ink-800 px-4 py-2.5 text-sm">
+              <span class="font-mono text-neutral-200">{t.popular}</span>
+              <svg class="h-4 w-4 flex-shrink-0 text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+              <span class="font-mono text-emerald">{t.tecnico}</span>
+              <span class="ml-auto text-xs text-neutral-600">{t.tipo}</span>
+            </div>
+          ))
+        }
+        <p class="mt-5 text-xs font-semibold uppercase tracking-wide text-neutral-500">Ambíguo (não resolve sozinho)</p>
+        {
+          ambiguos.map((a) => (
+            <div class="rounded-lg border border-amber-500/20 bg-ink-800 px-4 py-2.5 text-sm">
+              <span class="font-mono text-neutral-200">{a.popular}</span>
+              <span class="ml-2 rounded bg-amber-500/10 px-1.5 py-0.5 font-mono text-xs text-amber-300">AMBIGUO</span>
+              <div class="mt-1.5 flex flex-wrap gap-1.5">
+                {a.leituras.map((l) => <span class="rounded bg-ink-900 px-2 py-0.5 text-xs text-neutral-400">{l}</span>)}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">Como fica no arquivo</p>
+        <CodeBlock code={yamlAmbiguo} lang="yaml" caption="Trecho real de dados/lexico-br.yaml" />
+      </div>
+    </div>
+  </div>
+</section>

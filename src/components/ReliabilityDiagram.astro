@@ -1,0 +1,63 @@
+---
+import aval from "../data/avaliacao.json";
+
+// Reliability diagram gerado dos dados REAIS do relatorio (avaliacao.json).
+// x = confianca declarada, y = acuracia real. Barras acima da diagonal =
+// subestimou a confianca; abaixo = excesso de confianca.
+const bins = aval.calibracao;
+
+const X0 = 52, Y0 = 20, W = 336, H = 220;
+const baseline = Y0 + H;
+const px = (v: number) => X0 + v * W;
+const py = (v: number) => Y0 + (1 - v) * H;
+const binW = 0.2 * W * 0.66;
+
+const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1];
+---
+
+<figure class="rounded-xl border border-neutral-800 bg-[#0d0d0d] p-4">
+  <svg viewBox="0 0 420 300" class="w-full" role="img" aria-label="Reliability diagram: acurácia real por faixa de confiança declarada">
+    <!-- grade -->
+    {
+      ticks.map((t) => (
+        <g>
+          <line x1={px(t)} y1={Y0} x2={px(t)} y2={baseline} stroke="#1c1c1c" stroke-width="1" />
+          <line x1={X0} y1={py(t)} x2={X0 + W} y2={py(t)} stroke="#1c1c1c" stroke-width="1" />
+          <text x={px(t)} y={baseline + 16} text-anchor="middle" fill="#737373" font-size="10" font-family="ui-monospace, monospace">{t.toFixed(1)}</text>
+          <text x={X0 - 8} y={py(t) + 3} text-anchor="end" fill="#737373" font-size="10" font-family="ui-monospace, monospace">{t.toFixed(1)}</text>
+        </g>
+      ))
+    }
+
+    <!-- diagonal: calibracao perfeita -->
+    <line x1={px(0)} y1={py(0)} x2={px(1)} y2={py(1)} stroke="#525252" stroke-width="1.5" stroke-dasharray="4 4" />
+    <text x={px(0.28)} y={py(0.28) - 7} text-anchor="start" fill="#6b6b6b" font-size="9" font-family="ui-monospace, monospace" transform={`rotate(-31 ${px(0.28)} ${py(0.28) - 7})`}>calibração perfeita</text>
+
+    <!-- barras de acuracia nas faixas com dados -->
+    {
+      bins.map((b) => {
+        if (!b.n || b.acuracia === null) return null;
+        const center = (parseFloat(b.faixa.split("-")[0]) + parseFloat(b.faixa.split("-")[1])) / 2;
+        const x = px(center) - binW / 2;
+        const yTop = py(b.acuracia);
+        return (
+          <g>
+            <rect x={x} y={yTop} width={binW} height={baseline - yTop} fill="#2db89e" fill-opacity="0.30" stroke="#2db89e" stroke-width="1.5" />
+            <circle cx={px(b.conf)} cy={py(b.acuracia)} r="3.5" fill="#f59e0b" />
+            <text x={px(center)} y={yTop - 6} text-anchor="middle" fill="#e5e5e5" font-size="10" font-family="ui-monospace, monospace">n={b.n}</text>
+          </g>
+        );
+      })
+    }
+
+    <!-- rotulos dos eixos -->
+    <text x={X0 + W / 2} y="296" text-anchor="middle" fill="#a3a3a3" font-size="11">confiança declarada</text>
+    <text x="14" y={Y0 + H / 2} text-anchor="middle" fill="#a3a3a3" font-size="11" transform={`rotate(-90 14 ${Y0 + H / 2})`}>acurácia real</text>
+  </svg>
+
+  <figcaption class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-800 pt-3 text-xs text-neutral-500">
+    <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-emerald/40 ring-1 ring-emerald"></span>acurácia por faixa</span>
+    <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>confiança declarada</span>
+    <span>ECE {aval.metricas.ece.toFixed(4)}. Só 4 respostas tiveram confiança; barra acima da diagonal = subestimou a confiança nesta rodada.</span>
+  </figcaption>
+</figure>

@@ -1,0 +1,51 @@
+---
+import CodeBlock from "./CodeBlock.astro";
+import { GITHUB_URL } from "../consts";
+
+const passos = `# 1. clonar e instalar
+git clone ${GITHUB_URL}.git
+cd raciocinio-br-mcp
+uv sync
+cp .env.example .env
+
+# 2. apontar o .env para o seu LLM local e conferir
+uv run raciocinio-cli llm
+
+# 3. montar a base de evidência (baixa e indexa as diretrizes, ~1 min)
+uv run raciocinio-cli coletar
+
+# 4. reproduzir a AVALIAÇÃO (roda os casos e gera o relatório)
+uv run raciocinio-cli avaliar
+
+# 5. subir o servidor MCP e conectar ao seu cliente
+uv run raciocinio-br-mcp`;
+---
+
+<section id="como-rodar" class="border-b border-neutral-900">
+  <div class="mx-auto max-w-4xl px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-emerald">Como rodar</p>
+    <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">Reproduza a avaliação, não só use a ferramenta</h2>
+    <p class="mt-3 max-w-2xl text-neutral-400">
+      Quem clona este projeto deveria conseguir rodar o mesmo harness de avaliação
+      que gerou os números acima, não apenas ligar o servidor. Precisa de Python
+      3.12+, uv e um LLM local com API compatível com a da OpenAI.
+    </p>
+
+    <div class="mt-8">
+      <CodeBlock code={passos} lang="bash" caption="Confira variáveis e opções no README do projeto." />
+    </div>
+
+    <div class="mt-6 flex gap-3 rounded-xl border border-emerald/25 bg-emerald/5 p-4">
+      <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+      </svg>
+      <p class="text-sm leading-relaxed text-neutral-300">
+        O caso que você digita vai para o seu LLM local e para a base local. O que
+        sai da máquina é só o download das diretrizes públicas do gov.br/conitec.
+        Sem telemetria. Atenção: se o seu endpoint de LLM apontar para fora da
+        máquina, o caso vai junto, o projeto não impede isso.
+      </p>
+    </div>
+  </div>
+</section>
