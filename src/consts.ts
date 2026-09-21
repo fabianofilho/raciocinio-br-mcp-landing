@@ -13,4 +13,6 @@ export const FAMILY = [
   { slug: "radar-cfm", nome: "radar-cfm-mcp", url: "https://mcp.iamed.cc/radar-cfm", desc: "Resoluções do CFM" },
   { slug: "pcdt", nome: "protocolos-pcdt-mcp", url: "https://mcp.iamed.cc/pcdt", desc: "PCDTs do Ministério da Saúde" },
   { slug: "raciocinio-br", nome: "raciocinio-br-mcp", url: "https://mcp.iamed.cc/raciocinio-br", desc: "Raciocínio clínico avaliado (experimento)" },
+  { slug: "revisor-notas", nome: "revisor-notas-mcp", url: "https://mcp.iamed.cc/revisor-notas", desc: "Revisão de notas SOAP" },
+  { slug: "radar-papers", nome: "radar-papers-mcp", url: "https://mcp.iamed.cc/radar-papers", desc: "Monitor de PubMed e medRxiv" },
 ];
