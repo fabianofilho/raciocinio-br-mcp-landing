@@ -1,10 +1,10 @@
 ---
 import CodeBlock from "./CodeBlock.astro";
-import { GITHUB_URL } from "../consts";
+import { VERSAO } from "../consts";
 
-const passos = `# 1. clonar e instalar
-git clone ${GITHUB_URL}.git
-cd raciocinio-br-mcp
+// Comandos conferidos contra o README e a CLI da v0.1.0. Sem "git clone": o
+// repositorio e privado nesta versao.
+const passos = `# 1. na pasta do projeto: instalar e configurar
 uv sync
 cp .env.example .env
 
@@ -17,8 +17,15 @@ uv run raciocinio-cli coletar
 # 4. reproduzir a AVALIAÇÃO (roda os casos e gera o relatório)
 uv run raciocinio-cli avaliar
 
-# 5. subir o servidor MCP e conectar ao seu cliente
-uv run raciocinio-br-mcp`;
+# 5. registrar o servidor MCP (stdio) no Claude Code
+claude mcp add raciocinio-br -- uv --directory /caminho/do/raciocinio-br-mcp run raciocinio-br-mcp`;
+
+const atualizar = `# base montada antes da v${VERSAO}: reindexar uma vez (sem rede, usa data/pdfs/)
+uv run raciocinio-cli coletar
+
+# versão nova de um PCDT na Conitec: baixar de novo e reavaliar
+uv run raciocinio-cli coletar --atualizar
+uv run raciocinio-cli avaliar`;
 ---
 
 <section id="como-rodar" class="border-b border-neutral-900">
@@ -26,13 +33,37 @@ uv run raciocinio-br-mcp`;
     <p class="text-sm font-semibold uppercase tracking-wider text-emerald">Como rodar</p>
     <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">Reproduza a avaliação, não só use a ferramenta</h2>
     <p class="mt-3 max-w-2xl text-neutral-400">
-      Quem clona este projeto deveria conseguir rodar o mesmo harness de avaliação
-      que gerou os números acima, não apenas ligar o servidor. Precisa de Python
+      Quem tem o código deveria conseguir rodar o mesmo harness de avaliação que
+      gerou os números acima, não apenas ligar o servidor. Precisa de Python
       3.12+, uv e um LLM local com API compatível com a da OpenAI.
     </p>
 
+    <div class="mt-6 flex gap-3 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
+      <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="5" y="11" width="14" height="10" rx="2" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0v4" />
+      </svg>
+      <p class="text-sm leading-relaxed text-neutral-200">
+        O repositório é <strong class="font-semibold text-white">privado</strong> na
+        v{VERSAO}: não há link público para clonar. Os passos abaixo valem para quem
+        já tem acesso ao código. A abertura depende da revisão clínica.
+      </p>
+    </div>
+
     <div class="mt-8">
-      <CodeBlock code={passos} lang="bash" caption="Confira variáveis e opções no README do projeto." />
+      <CodeBlock code={passos} lang="bash" caption="Variáveis e opções no README do projeto. No Claude Code, passe caminhos absolutos no env do servidor." />
+    </div>
+
+    <h3 class="mt-10 text-base font-semibold text-white">Atualizar a base (manual)</h3>
+    <p class="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-400">
+      Não há timer: a base só muda quando alguém roda a coleta. Numa base
+      indexada antes da v{VERSAO}, <span class="font-mono text-neutral-300">explicar_cobertura</span>
+      devolve <span class="font-mono text-neutral-300">cids_no_texto</span> vazio e avisa
+      para reindexar. A data em <span class="font-mono text-neutral-300">coletado_em</span>
+      é a do download do PDF, então reindexar sem <span class="font-mono text-neutral-300">--atualizar</span> não a muda.
+    </p>
+    <div class="mt-4">
+      <CodeBlock code={atualizar} lang="bash" />
     </div>
 
     <div class="mt-6 flex gap-3 rounded-xl border border-emerald/25 bg-emerald/5 p-4">
