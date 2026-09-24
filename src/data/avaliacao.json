@@ -1,7 +1,8 @@
 {
   "_fonte": "Extraído de resultados/avaliacao-2026-09-20.md do repositório raciocinio-br-mcp. Não editar à mão: regenerar do relatório real.",
   "data": "2026-09-20",
-  "modelo": "local-model",
+  "modelo": "Qwen3.5-9B-Q4_K_M.gguf",
+  "modelo_nota": "O relatório de 2026-09-20 registrou 'local-model', que é o nome do .env, não o modelo. O modelo servido pelo endpoint local é Qwen3.5-9B-Q4_K_M.gguf (id de /v1/models). A partir da v0.1.0 o relatório grava esse id.",
   "casos": 8,
   "gabaritos_revisados_clinicamente": 0,
   "aviso": "Os gabaritos ainda não passaram por revisão clínica. Estes números medem se o pipeline funciona de ponta a ponta, não se o sistema está clinicamente correto. Não citar esta rodada como avaliação de qualidade.",

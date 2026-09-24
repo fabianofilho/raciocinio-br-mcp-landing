@@ -1,4 +1,6 @@
 ---
+import CodeBlock from "./CodeBlock.astro";
+
 const camadas = [
   { n: "01", titulo: "Léxico", texto: "Normaliza o vocabulário brasileiro do caso. Termo ambíguo é devolvido com as leituras, sem escolher." },
   { n: "02", titulo: "Recuperação", texto: "Busca full-text (DuckDB) na base de evidência dos PCDTs, com um piso de cobertura que decide se a pergunta está no escopo." },
@@ -6,11 +8,54 @@ const camadas = [
   { n: "04", titulo: "Estruturação com procedência", texto: "Cada hipótese sai com citação literal, se a citação confere no documento, a confiança, e a lista do que ficou indeterminado." },
 ];
 
+// Assinaturas e descrições conferidas contra mcp_server/server.py da v0.1.0.
 const tools = [
-  { nome: "raciocinar_caso", desc: "hipóteses com procedência, conduta, termos normalizados e indeterminados. Nenhum campo é opcional." },
-  { nome: "normalizar_termo", desc: "o que o léxico entende do termo; ambíguo volta com as leituras, sem escolha." },
-  { nome: "explicar_cobertura", desc: "o que a base cobre, para saber se a pergunta está no escopo antes de confiar na resposta." },
+  {
+    nome: "raciocinar_caso",
+    assinatura: "raciocinar_caso(descricao_caso: str)",
+    desc: "Hipóteses com procedência, conduta, trechos-fonte, termos normalizados, indeterminados, condicao_no_escopo, modelo e um aviso que começa por \"NÃO REVISADO CLINICAMENTE\". Nenhum campo é opcional. Precisa do LLM local.",
+  },
+  {
+    nome: "normalizar_termo",
+    assinatura: "normalizar_termo(termo: str)",
+    desc: "O que o léxico entende do termo. Ambíguo volta com as leituras, sem escolha. Léxico 0.1.0, 12 entradas, revisão pendente.",
+  },
+  {
+    nome: "explicar_cobertura",
+    assinatura: "explicar_cobertura(condicao: str = '')",
+    desc: "O que a base cobre, para saber se a pergunta está no escopo antes de confiar na resposta. Aceita nome, sigla e sinônimo (\"DM2\", \"HAS\", \"fumo\"); vazio lista as seis condições.",
+  },
 ];
+
+// Saídas reais de explicar_cobertura("DM2") com o código da v0.1.0, sobre os
+// PDFs baixados em 2026-09-20. A primeira depois de reindexar; a segunda numa
+// base indexada pela extração antiga de CID-10.
+const exemploCobertura = `{
+  "consulta": "DM2",
+  "no_escopo": true,
+  "total_condicoes": 1,
+  "condicoes": [
+    {
+      "condicao": "Diabete Melito Tipo 2",
+      "slug": "diabete-melito-tipo-2",
+      "cid10": "PENDENTE",
+      "cids_no_texto": ["E11", "E11.2", "E11.3", "E11.4", "E11.5",
+                        "E11.6", "E11.7", "E11.8", "E11.9"],
+      "documento": "PCDT Diabete Melito Tipo 2",
+      "portaria": "Portaria SCTIE/MS nº 13/2026 - 21/02/2026",
+      "data_documento": "2026-02-21",
+      "url": "https://www.gov.br/conitec/pt-br/midias/protocolos/2026/pcdt-diabete-melito-tipo-2/@@display-file/file",
+      "status_conitec": "em atualização",
+      "trechos_indexados": 208,
+      "coletado_em": "2026-09-20 21:19:43.053156"
+    }
+  ],
+  "aviso": "'DM2' casou com Diabete Melito Tipo 2 por sinônimo ou pelo léxico, não pelo nome da condição. Confira se é a condição que você procura: o escopo cobre só o que está listado aqui.",
+  "revisao_clinica": "NÃO REVISADO CLINICAMENTE: gabaritos de avaliação, léxico e CID-10 deste experimento ainda não passaram por revisão clínica."
+}`;
+
+const exemploBaseAntiga = `"cids_no_texto": [],
+"aviso": "'DM2' casou com Diabete Melito Tipo 2 por sinônimo ou pelo léxico, não pelo nome da condição. Confira se é a condição que você procura: o escopo cobre só o que está listado aqui. A base foi indexada por uma versão antiga da extração de CID-10, que pegava códigos de tabelas e referências; os candidatos de Diabete Melito Tipo 2 foram omitidos. Rode 'raciocinio-cli coletar' para reindexar."`;
 ---
 
 <section id="como-funciona" class="border-b border-neutral-900">
@@ -48,15 +93,36 @@ const tools = [
       </p>
     </div>
 
-    <div class="mt-6 grid gap-3 sm:grid-cols-3">
+    <h3 class="mt-12 text-base font-semibold text-white">As três tools</h3>
+    <div class="mt-4 grid gap-3 sm:grid-cols-3">
       {
         tools.map((t) => (
           <div class="rounded-xl border border-neutral-800 bg-ink-800 p-4">
-            <p class="font-mono text-sm font-semibold text-emerald">{t.nome}</p>
+            <p class="break-words font-mono text-xs font-semibold text-emerald">{t.assinatura}</p>
             <p class="mt-1.5 text-xs leading-relaxed text-neutral-400">{t.desc}</p>
           </div>
         ))
       }
+    </div>
+
+    <h3 class="mt-10 text-base font-semibold text-white">Exemplo: <span class="font-mono text-emerald">explicar_cobertura("DM2")</span></h3>
+    <p class="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-400">
+      <span class="font-mono text-neutral-300">coletado_em</span> é a data em que o PDF
+      foi baixado da Conitec, não a da última reindexação.
+      <span class="font-mono text-neutral-300">cids_no_texto</span> são candidatos
+      extraídos da seção de classificação CID-10 do próprio PCDT; o CID principal
+      continua <span class="font-mono text-neutral-300">PENDENTE</span> de decisão clínica.
+    </p>
+    <div class="mt-4">
+      <CodeBlock code={exemploCobertura} lang="json" caption="Saída real do código da v0.1.0, depois de reindexar." />
+    </div>
+    <p class="mt-6 max-w-2xl text-sm leading-relaxed text-neutral-400">
+      Numa base indexada antes da v0.1.0, os candidatos antigos (que traziam códigos
+      de tabelas e referências) não vazam: <span class="font-mono text-neutral-300">cids_no_texto</span>
+      volta vazio e o aviso de reindexação se soma ao de sinônimo.
+    </p>
+    <div class="mt-4">
+      <CodeBlock code={exemploBaseAntiga} lang="json" caption="Mesma consulta, base indexada pela extração antiga." />
     </div>
   </div>
 </section>

@@ -1,5 +1,7 @@
 ---
-const falhas = [
+// Fonte: FALHAS-CONHECIDAS.md e README ("Limitações conhecidas") da v0.1.0.
+// Em aberto: as duas que continuam falhando na rodada publicada (avaliacao.json).
+const abertas = [
   {
     caso: "has-001",
     causa: "recuperação",
@@ -16,29 +18,29 @@ const falhas = [
       "O FTS trouxe o PCDT correto no topo, mas o caso é curto e o que importa está em números (98 kg, 1,62 m), não em palavras. Só 1 palavra de conteúdo em comum com o trecho, abaixo do piso de 3. Baixar o piso faria o has-001 responder sobre a diretriz errada, o pior erro aqui.",
     proximo: "O piso considerar o casamento entre a condição do trecho e os termos do caso, não só contar palavras.",
   },
+];
+
+// Já explicadas: falharam em rodadas anteriores e acertam na rodada publicada.
+const resolvidas = [
   {
     caso: "tabagismo-001",
-    causa: "modelo",
-    esperado: "tabagismo",
+    causa: "modelo, depois métrica",
     texto:
-      "O FTS trouxe o PCDT de Tabagismo no topo, o piso passou, o LLM recebeu os trechos certos e devolveu hipóteses vazias. Não é falha de recuperação nem de léxico.",
-    proximo: "Inspecionar a resposta crua do modelo: pode ser o prompt lido como \"não afirme sem certeza\" com rigor excessivo.",
+      "Na 1ª rodada o LLM recebeu os trechos certos do PCDT de Tabagismo e devolveu hipóteses vazias. Na 2ª respondeu \"dependência à nicotina\" e o comparador, que só aceitava \"dependência de nicotina\", marcou erro. Com o comparador corrigido, a 3ª rodada conta acerto (confiança 0,80).",
   },
   {
     caso: "dm2-001",
     causa: "métrica, não o sistema",
-    esperado: "diabetes mellitus tipo 2",
     texto:
-      "Respondeu \"Diagnóstico de Diabete Melito Tipo 2\", clinicamente correto e com a grafia do próprio PCDT. O comparador não casou \"mellitus\" com \"melito\" e marcou como erro. É exatamente o eixo de vocabulário brasileiro que o projeto existe para medir, e a primeira vítima dele foi a própria métrica.",
-    proximo: "Corrigido: as grafias do documento entraram em hipoteses_aceitaveis.",
+      "Respondeu \"Diagnóstico de Diabetes Mellito Tipo 2\", clinicamente correto. O PCDT se chama \"Diabete Melito Tipo 2\" e o comparador não casou as grafias, então marcou erro. As grafias do documento entraram em hipoteses_aceitaveis.",
   },
 ];
 
 const cor: Record<string, string> = {
   "recuperação": "text-sky-300 border-sky-500/30 bg-sky-500/10",
   "piso de cobertura": "text-violet-300 border-violet-500/30 bg-violet-500/10",
-  "modelo": "text-red-300 border-red-500/30 bg-red-500/10",
-  "métrica, não o sistema": "text-amber-300 border-amber-500/30 bg-amber-500/10",
+  "modelo, depois métrica": "text-neutral-300 border-neutral-700 bg-neutral-800/60",
+  "métrica, não o sistema": "text-neutral-300 border-neutral-700 bg-neutral-800/60",
 };
 ---
 
@@ -50,13 +52,22 @@ const cor: Record<string, string> = {
     </h2>
     <p class="mt-3 max-w-2xl text-neutral-400">
       Registrar onde erra é parte do projeto, não uma fraqueza a esconder. Vem do
-      <span class="font-mono text-neutral-300">FALHAS-CONHECIDAS.md</span>, atualizado a cada rodada.
+      <span class="font-mono text-neutral-300">FALHAS-CONHECIDAS.md</span> do projeto,
+      que acompanha cada rodada de avaliação.
     </p>
 
-    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+    <div class="mt-10 flex items-center gap-2">
+      <span class="h-2 w-2 rounded-full bg-red-400" aria-hidden="true"></span>
+      <h3 class="text-base font-semibold text-white">Falhas conhecidas em aberto na v0.1.0</h3>
+    </div>
+    <p class="mt-2 max-w-2xl text-sm text-neutral-400">
+      Continuam falhando na rodada publicada. Nenhuma das duas é falha do modelo.
+    </p>
+
+    <div class="mt-5 grid gap-5 sm:grid-cols-2">
       {
-        falhas.map((f) => (
-          <article class="flex flex-col rounded-xl border border-neutral-800 bg-ink-800 p-5">
+        abertas.map((f) => (
+          <article class="flex flex-col rounded-xl border border-red-500/30 bg-ink-800 p-5">
             <div class="flex items-center justify-between gap-2">
               <span class="font-mono text-sm font-semibold text-white">{f.caso}</span>
               <span class={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${cor[f.causa]}`}>{f.causa}</span>
@@ -71,14 +82,34 @@ const cor: Record<string, string> = {
       }
     </div>
 
+    <h3 class="mt-12 text-base font-semibold text-white">Erros de rodadas anteriores, já explicados</h3>
+    <p class="mt-2 max-w-2xl text-sm text-neutral-400">
+      Acertam na rodada publicada. Ficam aqui porque a causa deles diz muito sobre a métrica.
+    </p>
+
+    <div class="mt-5 grid gap-5 sm:grid-cols-2">
+      {
+        resolvidas.map((f) => (
+          <article class="flex flex-col rounded-xl border border-neutral-800 bg-ink-800 p-5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-sm font-semibold text-white">{f.caso}</span>
+              <span class={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${cor[f.causa]}`}>{f.causa}</span>
+            </div>
+            <p class="mt-3 text-sm leading-relaxed text-neutral-300">{f.texto}</p>
+          </article>
+        ))
+      }
+    </div>
+
     <div class="mt-6 flex gap-3 rounded-xl border border-neutral-800 bg-ink-800 p-4">
       <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
         <circle cx="12" cy="12" r="9" />
       </svg>
       <p class="text-sm leading-relaxed text-neutral-300">
-        Dos quatro erros da primeira rodada, <strong class="font-semibold text-white">dois eram da métrica, não do sistema</strong>,
-        e os dois no eixo de vocabulário brasileiro. Num projeto cujo valor é a
+        A subida de 4/8 para 6/8 entre rodadas veio de <strong class="font-semibold text-white">consertar a métrica, não o sistema</strong>:
+        dm2-001 e tabagismo-001 já estavam clinicamente certos, e os dois falsos
+        negativos caíram no eixo de vocabulário brasileiro. Num projeto cujo valor é a
         avaliação, a métrica precisa ser testada com o mesmo rigor do resto.
       </p>
     </div>

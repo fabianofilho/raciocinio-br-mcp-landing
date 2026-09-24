@@ -1,12 +1,12 @@
 // Constantes de link e marca, centralizadas.
-// NOTA: o repo raciocinio-br-mcp existe, mas e PRIVADO. Enquanto estiver
-// privado, este link vai 404 para visitantes sem acesso.
+// O repo raciocinio-br-mcp e PRIVADO na v0.1.0: a landing nao aponta para ele
+// nem manda clonar. Se ele for aberto, voltar com o link aqui.
 export const PROJECT = "raciocinio-br-mcp";
-export const GITHUB_URL = "https://github.com/fabianofilho/raciocinio-br-mcp";
+export const VERSAO = "0.1.0";
 export const IAMED_URL = "https://iamed.cc";
 export const LICENSE = "Apache-2.0";
 
-// Familia de MCPs open source da IA.med. SELF_SLUG marca o atual (some do rodape).
+// Familia de MCPs da IA.med. SELF_SLUG marca o atual (some do rodape).
 export const SELF_SLUG = "raciocinio-br";
 export const FAMILY = [
   { slug: "anvisa", nome: "anvisa-mcp", url: "https://iamed.cc/mcps/anvisa", desc: "Registro sanitário da Anvisa" },
