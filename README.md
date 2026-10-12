@@ -36,6 +36,12 @@ npm run dev
 
 Abre em `http://localhost:4321/mcps/raciocinio-br` (o `base` é `/mcps/raciocinio-br`).
 
+## Números da base
+
+Os números de `src/components/Escopo.astro` (102 testes, 1.517 trechos, 6
+condições, 11 MB) foram lidos em 2026-10-12 a partir do inventário da família de
+MCPs IA.med. Envelhecem: ao republicar, reler e trocar a data `LIDO_EM`.
+
 ## Atualizar os números
 
 Quando o repositório publicar uma nova rodada de avaliação, regenere
