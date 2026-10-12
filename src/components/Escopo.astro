@@ -7,6 +7,22 @@ const condicoes = [
   { nome: "Sobrepeso e Obesidade em Adultos", diretriz: "PCDT Sobrepeso e Obesidade", portaria: "Portaria SCTIE/MS nº 53, 2020", status: "vigente" },
   { nome: "Tabagismo", diretriz: "PCDT Tabagismo", portaria: "Portaria Conjunta nº 10, 2020", status: "vigente" },
 ];
+
+// Numeros lidos do repositorio e da base real em 2026-10-12 (inventario da familia
+// de MCPs IA.med). Envelhecem: ao republicar, reler e trocar a data.
+const LIDO_EM = "2026-10-12";
+const numeros = [
+  { valor: "102", label: "Testes automatizados" },
+  { valor: "1.517", label: "Trechos indexados dos protocolos no escopo" },
+  { valor: "6", label: "Condições cobertas nesta versão" },
+  { valor: "11 MB", label: "Tamanho da base" },
+];
+
+const naoDiz = [
+  { titulo: "Nada aqui passou por revisão clínica", texto: "Gabaritos de avaliação, léxico e CID-10 ainda não foram revisados. Toda resposta das tools repete esse aviso." },
+  { titulo: "Caso curto com números vence a busca textual", texto: "Num dos casos, o protocolo correto veio no topo, mas o que importava estava em números, como peso e altura, e não em palavras. Busca por texto não alcança isso." },
+  { titulo: "Seis condições, não um sistema geral", texto: "O escopo é pequeno de propósito, para a avaliação dizer alguma coisa." },
+];
 ---
 
 <section id="escopo" class="border-b border-neutral-900">
@@ -31,6 +47,34 @@ const condicoes = [
             <span class={`mt-3 w-fit rounded-full px-2 py-0.5 text-xs font-medium ${c.status === "vigente" ? "bg-emerald/10 text-emerald" : "bg-amber-500/10 text-amber-300"}`}>
               {c.status}
             </span>
+          </div>
+        ))
+      }
+    </div>
+
+    <h3 class="mt-14 text-base font-semibold text-white">A base, em números</h3>
+    <p class="mt-2 max-w-2xl text-sm text-neutral-400">
+      Lidos em {LIDO_EM}. O repositório é privado até passar por revisão clínica.
+    </p>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        numeros.map((n) => (
+          <div class="rounded-xl border border-neutral-800 bg-ink-800 p-5">
+            <p class="text-xs text-neutral-500">{n.label}</p>
+            <p class="mt-2 font-mono text-3xl font-bold text-white">{n.valor}</p>
+            <p class="mt-1 text-xs text-neutral-500">lido em {LIDO_EM}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <h3 class="mt-12 text-base font-semibold text-white">O que ele não diz</h3>
+    <div class="mt-4 grid gap-4 sm:grid-cols-3">
+      {
+        naoDiz.map((n) => (
+          <div class="rounded-xl border border-amber-500/20 bg-ink-800 p-5">
+            <p class="text-sm font-semibold text-white">{n.titulo}</p>
+            <p class="mt-2 text-xs leading-relaxed text-neutral-400">{n.texto}</p>
           </div>
         ))
       }
