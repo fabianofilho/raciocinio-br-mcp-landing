@@ -9,6 +9,7 @@ export const LICENSE = "Apache-2.0";
 // Familia de MCPs da IA.med. SELF_SLUG marca o atual (some do rodape).
 export const SELF_SLUG = "raciocinio-br";
 export const FAMILY = [
+  { slug: "iamed", nome: "iamed-mcp", url: "https://iamed.cc/mcps/iamed", desc: "Base do IA.med: o que saiu de IA na medicina" },
   { slug: "anvisa", nome: "anvisa-mcp", url: "https://iamed.cc/mcps/anvisa", desc: "Registro sanitário da Anvisa" },
   { slug: "radar-cfm", nome: "radar-cfm-mcp", url: "https://iamed.cc/mcps/radar-cfm", desc: "Resoluções do CFM" },
   { slug: "pcdt", nome: "protocolos-pcdt-mcp", url: "https://iamed.cc/mcps/pcdt", desc: "PCDTs do Ministério da Saúde" },
